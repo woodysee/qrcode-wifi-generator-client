@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/qrcode-wifi-generator-client/static/css/main.daef518c.css",
+    "main.js": "/qrcode-wifi-generator-client/static/js/main.7b04e238.js",
+    "static/js/787.70afa23d.chunk.js": "/qrcode-wifi-generator-client/static/js/787.70afa23d.chunk.js",
+    "index.html": "/qrcode-wifi-generator-client/index.html",
+    "main.daef518c.css.map": "/qrcode-wifi-generator-client/static/css/main.daef518c.css.map",
+    "main.7b04e238.js.map": "/qrcode-wifi-generator-client/static/js/main.7b04e238.js.map",
+    "787.70afa23d.chunk.js.map": "/qrcode-wifi-generator-client/static/js/787.70afa23d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.daef518c.css",
+    "static/js/main.7b04e238.js"
+  ]
+}
