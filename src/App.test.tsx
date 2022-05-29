@@ -1,9 +1,10 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+test('renders "Generate your own QR code to add WiFi!" header', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
+  const linkElement = screen.getByText(
+    /Generate your own QR code to add WiFi!/i,
+  );
   expect(linkElement).toBeInTheDocument();
 });
