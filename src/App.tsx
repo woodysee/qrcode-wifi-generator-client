@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import styles from "./App.module.scss";
 
@@ -26,35 +26,10 @@ function App() {
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const encryptionInputRef = useRef<HTMLSelectElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const scaleInputRef = useRef<HTMLInputElement>(null);
 
-  const [encryption, setEncryption] = useState<Encryption | undefined>(
-    undefined,
-  );
-  const [hidden, setHidden] = useState<boolean>(false);
-  const [ssid, setSSID] = useState<string | undefined>(undefined);
-  const [password, setPassword] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (
-      typeof encryption !== "undefined" &&
-      typeof ssid !== "undefined" &&
-      typeof password !== "undefined"
-    ) {
-      QRCode.toCanvas(
-        canvasRef.current,
-        generateDecodedQRCodeStringForWiFi({
-          encryption,
-          ssid,
-          password,
-          hidden,
-        }),
-        (error) => {
-          if (error) console.error(error);
-          console.log("success!");
-        },
-      );
-    }
-  }, [encryption, hidden, password, ssid]);
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [scale, setScale] = useState<number>(5);
 
   return (
     <div className={styles.app}>
@@ -66,18 +41,37 @@ function App() {
           const ssidInputEl = ssidInputRef.current;
           const passwordInputEl = passwordInputRef.current;
           const hiddenInputEl = hiddenInputRef.current;
-          if (encryptionInputEl !== null) {
-            setEncryption(encryptionInputEl.value as Encryption);
+          const scaleInputEl = scaleInputRef.current;
+          const a = {
+            encryption: encryptionInputEl?.value as Encryption,
+            ssid: ssidInputEl?.value,
+            password: passwordInputEl?.value,
+            hidden: hiddenInputEl?.checked,
+          };
+          console.log(a);
+
+          if (
+            encryptionInputEl == null ||
+            hiddenInputEl === null ||
+            ssidInputEl === null ||
+            passwordInputEl === null ||
+            scaleInputEl === null
+          ) {
+            return;
           }
-          if (hiddenInputEl !== null) {
-            setHidden(hiddenInputEl.checked);
-          }
-          if (ssidInputEl !== null) {
-            setSSID(ssidInputEl.value);
-          }
-          if (passwordInputEl !== null) {
-            setPassword(passwordInputEl.value);
-          }
+          setSubmitted(true);
+          QRCode.toCanvas(
+            canvasRef.current,
+            generateDecodedQRCodeStringForWiFi({
+              encryption: encryptionInputEl.value as Encryption,
+              ssid: ssidInputEl.value,
+              password: passwordInputEl.value,
+              hidden: hiddenInputEl.checked,
+            }),
+            {
+              scale: parseInt(scaleInputEl.value),
+            },
+          );
         }}
       >
         <table>
@@ -108,7 +102,7 @@ function App() {
                 <label htmlFor="hidden">Hidden?</label>
               </td>
               <td>
-                <input name="hidden" type="checkbox" />
+                <input name="hidden" type="checkbox" ref={hiddenInputRef} />
               </td>
             </tr>
             <tr>
@@ -125,29 +119,33 @@ function App() {
             </tr>
             <tr>
               <td>
+                <label htmlFor="scale">Scale (1 - 20)</label>
+              </td>
+              <td>
+                <input
+                  ref={scaleInputRef}
+                  type="range"
+                  min="1"
+                  max="20"
+                  name="scale"
+                  onChange={(e) => {
+                    setScale(parseInt(e.target.value));
+                  }}
+                  defaultValue={scale}
+                />
+                <input readOnly name="scale" value={scale} />
+              </td>
+            </tr>
+            <tr>
+              <td>
                 <button type="submit">Generate code</button>
               </td>
               <td>
                 <button
+                  type="reset"
                   onClick={() => {
-                    setSSID(undefined);
-                    setPassword(undefined);
-                    setEncryption(undefined);
-                    setHidden(false);
-                    if (ssidInputRef.current) {
-                      ssidInputRef.current.value = "";
-                    }
-                    if (passwordInputRef.current) {
-                      passwordInputRef.current.value = "";
-                    }
-                    if (encryptionInputRef.current) {
-                      encryptionInputRef.current.value = "" as Encryption;
-                    }
-                    if (hiddenInputRef.current) {
-                      hiddenInputRef.current.checked = false;
-                    }
+                    setSubmitted(false);
                   }}
-                  type="button"
                 >
                   Clear code
                 </button>
@@ -159,11 +157,10 @@ function App() {
       <br />
       <hr />
       <br />
-      {typeof ssid !== "undefined" && typeof password !== "undefined" ? (
-        <canvas ref={canvasRef}></canvas>
-      ) : (
-        <div>No fields yet</div>
-      )}
+      <div style={{ display: submitted ? "block" : "none" }}>
+        <canvas ref={canvasRef} />
+      </div>
+      {!submitted && <div>No fields yet</div>}
     </div>
   );
 }
